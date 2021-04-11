@@ -1,6 +1,6 @@
 {
   "name": "wsprocessor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A lightweight processor for websocket connections, providing acknowledged messages, error handling and connection status monitoring. The same code is run on the client and the server.",
   "main": "wsProcessor.cjs",
   "directories": {
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "TBC"
+    "url": "git+https://github.com/retfah/wsProcessor.git"
   },
   "keywords": [
     "websocket",
@@ -31,6 +31,6 @@
   "license": "LGPL-3.0-or-later",
   "devDependencies": {
     "ws":"^7.4.0",
-...."express":"^4.0.0",
-  },
+    "express":"^4.0.0"
+  }
 }
