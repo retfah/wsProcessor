@@ -21,7 +21,7 @@ Written in pure javascript and without any dependency. The same code runs with a
 
 The package can be downloaded from [github](https://github.com/retfah/wsProcessor) or installed with npm: 
 ```bash
-npm install wsProcessor
+npm install wsprocessor
 ```
 
 There are mainly three files of interest: 
