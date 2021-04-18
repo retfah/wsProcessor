@@ -1,6 +1,6 @@
 {
   "name": "wsprocessor",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A lightweight processor for websocket connections, providing acknowledged messages, error handling and connection status monitoring. The same code runs on client and server.",
   "main": "wsProcessor.cjs",
   "directories": {
