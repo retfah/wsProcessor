@@ -1,8 +1,8 @@
 # wsProcessor
-A lightweight processor for websocket connections, providing acknowledged messages, error handling and connection status monitoring.
-
 ![npm](https://img.shields.io/npm/dm/wsprocessor)
 ![GitHub file size in bytes](https://img.shields.io/github/size/retfah/wsProcessor/browser/wsProcessorBrowser.min.js?label=minified%20size)
+
+A lightweight processor for websocket connections, providing acknowledged messages, error handling and connection status monitoring.
 
 Written in pure javascript and without any dependency. The same code runs with any websocket implementation, e.g. [ws](https://www.npmjs.com/package/ws) for [nodejs](https://nodejs.org/) and the [Websocket API](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) in modern browsers. 
 
