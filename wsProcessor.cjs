@@ -79,7 +79,7 @@
 
 
 /** log levels
- * default winston log levels (from here: https://sematext.com/blog/node-js-logging/): 
+ * used log levels: 
  * 0: error		errors that cannot be handled by the calling functions, e.g. errors about packages that cannot be processed. (They are not fatal in a way that it crashed. )
  * 1: warn		errors that are anyway reported to the calling functions (e.g. by calling cbFailure)
  * 2: info		not used
@@ -96,7 +96,7 @@
 		/**
 		 * wsProcessor constructor: 
 		 * @param {function} sendingFunc The function to be called for sending a message with the only parameter beeing the message.
-		 * @param {function} closingFunction A function to be called to close the websocket connection. Used when the heartbeats are not successful anymore.
+		 * @param {function} closingFunc A function without parameter to be called to close the websocket connection. Used when the heartbeats are not successful anymore.
 		 * @param {function} incomingNoteFunc The function called when a note arrives. One parameter: the note. 
 		 * @param {function} incomingRequestFunc The function called when a request arrives. Two parameters: the request, a callback to send the response. The latter takes at least the response as the parameter. responseFunc = (response, failureCode=0, opt={}, cbAck=(statusCode, statusMsg)=>{}); see the details below.
 		 * @param {function} logger Optional, A function for loggin purposes: (logLevel, message)=>{}
@@ -108,14 +108,14 @@
 		 * @param {number} opt.heartbeatRttTimeoutMutiplicator Optional, default = 50; The minimum time (as a multiplicator with the round-trip time RTT from the last two heartbeats in seconds) to wait for a pong, before the connection is deemed broken and is actively closed.
 		 * @param {function} cbTest A function that is called on every incoming request and that is given the complete message. Intended only for testing; can be used to simulate a busy server (i.e. a slow responding server). The only property given is the parsed message. 
 		 */
-		constructor(sendingFunc, closingFunction, incomingNoteFunc, incomingRequestFunc, logger=(logLevel, msg)=>{}, opt={}, cbTest=(message)=>{}){
+		constructor(sendingFunc, closingFunc, incomingNoteFunc, incomingRequestFunc, logger=(logLevel, msg)=>{}, opt={}, cbTest=(message)=>{}){
 			// the constructor initializes everything (e.g. stacks) after the connection has been established
 			this.stackNote = {}; // stack for acknowledged notes
 			this.stackRequest = {}; // stack for any kind of requests
 			this.stackResponse = {}; // stack for acknowledged responses 
 
 			this.sendingFunc = sendingFunc; // the function that has to be called for sending messages; the wsProcessor class will call the sendingFunc with one argument: the message
-			this.closingFunc = closingFunction;
+			this.closingFunc = closingFunc;
 			this.logger = logger;
 			this.cbTest = cbTest;
 
@@ -509,7 +509,7 @@
 	
 	
 		// the function that processes the incoming messages
-		_onMessage(messageRaw){
+		onMessage(messageRaw){
 	
 			/* 
 			every message should have:
@@ -554,7 +554,7 @@
 						respond.stamp = message.stamp;
 						
 						// acknowledge receiving the message
-						this.sendingFunc(JSON.stringify(respond))
+						this.sendingFunc(JSON.stringify(respond));
 
 					}
 					

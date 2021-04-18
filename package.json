@@ -1,11 +1,12 @@
 {
   "name": "wsprocessor",
-  "version": "1.0.1",
-  "description": "A lightweight processor for websocket connections, providing acknowledged messages, error handling and connection status monitoring. The same code is run on the client and the server.",
+  "version": "1.0.2",
+  "description": "A lightweight processor for websocket connections, providing acknowledged messages, error handling and connection status monitoring. The same code runs on client and server.",
   "main": "wsProcessor.cjs",
   "directories": {
     "example": "example"
   },
+  "files": ["*.", "/browser/*"],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,6 +16,7 @@
   },
   "keywords": [
     "websocket",
+    "javascript",
     "communication",
     "protocol",
     "messages",

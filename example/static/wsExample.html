@@ -1,0 +1,176 @@
+<!-- demo/testing of the wsExtension --> 
+
+<html>
+    <head>
+        <title>wsExtension Test/Demo</title>
+        <script src="/static/wsProcessorBrowser.js" type="text/javascript"></script>
+        <script>
+            var connection;
+            var processor;
+            var consoleEl;
+            var textEl;
+            var numEl;
+            var logEl;
+
+            function startup(){
+                // try to connect to the wsServer and link to the wsExtension
+                connection = new WebSocket("ws://" +window.location.hostname+":3301");
+
+                consoleEl = document.getElementById('console');
+                logEl = document.getElementById('log');
+                textEl = document.getElementById('text');
+                numEl = document.getElementById('num');
+
+                // simplisticc logger:
+                var logger = (code, msg)=>{
+                    let str = `code=${code}, msg=${msg}`;
+                    logEl.innerHTML += `Logger: ${str} <br>`; 
+                }
+
+                var noteHandler = (note)=>{
+                    consoleEl.innerHTML += `Note: ${note} <br>`;
+                }
+
+                // the responseFunc takes either 3 arguments for requests and 4 for acknowledged requests:
+                // non-acknowledged:    (response, failureCode=0, failure=(errCode, errMsg)=>{})
+                // acknowledged:        (response, failureCode=0, failure=(errCode, errMsg)=>{}, success=()=>{})
+                var requestHandler = (request, responseFunc)=>{
+                    
+                    /**
+                     * put here the logic to answer requests
+                     */
+                    
+                    // for example:
+                    
+                    if (request.type=="square"){
+                        responseFunc(request.value**2)
+                    } else if (request.type=="error"){
+                        responseFunc("Some error ;,-( ", 13, (responseErrorCode, responseErrorMsg)=>{
+                            // there is hopefully no error!
+                        })
+                    } 
+                }
+
+                let opt = {
+                    heartbeatMinTimeout: 30, // for testing, I want to manually set breakpoints and influence the answering from the server. However, I do not want that during this time the connection closes. Therefore I set the timeout to something high. 
+                }
+
+                /*// how the wsHandler can send a 
+                var sendMessage = (mess)=>{
+                    connection.send(mess);
+                }
+
+                // the wsExtension must be able close the connection actively when heartbeats do not arrive anymore
+                var closeConnection = ()=>{
+                    connection.close()
+                }*/
+
+                // new wsExtensionClass
+                // sendingFunc, closingFunction, incomingNoteFunc, incomingRequestFunc, logger=(logLevel, msg)=>{}, opt={}, cbTest=(message)=>{}
+                connection.onopen = (event)=>{
+                    processor = new wsProcessor((mess)=>{connection.send(mess)}, ()=>{connection.close()}, noteHandler, requestHandler, logger, opt);
+                }
+
+                // must set the processor to handle the events 
+                connection.onmessage = (mess)=>{processor.onMessage(mess.data);};
+                connection.onclose = (event)=>{processor.close();};
+                connection.onerror = (event)=>{processor.close();}; // unclear when exactly this is raise; anyway: stop the connection
+
+                consoleEl.innerHTML += `Startup done. <br>`;
+
+            } // end startup
+
+            function sendNote(){
+
+                let opt = {}
+
+                opt.sendAck = document.getElementById('sendAckNote').checked;
+                opt.ackTimeout = document.getElementById('ackTimeoutNote').value;
+
+                processor.sendNote(textEl.value, opt, (code, msg)=>{
+                    consoleEl.innerHTML += `Note ack status: ${code} - ${msg}<br>`
+                })
+            }
+
+            function sendSquare(close=false){
+
+                let opt = {}
+
+                opt.sendAck = document.getElementById('sendAck').checked;
+                opt.ackTimeout = document.getElementById('ackTimeout').value;
+                opt.requestTimeout = document.getElementById('requestTimeout').value;
+
+                let val = numEl.value;
+
+                req = {}
+                req.type = 'square';
+                req.value = val;
+
+                //success=(response)=>{}, failure=(errCode, errMsg)=>{}, status=()=>{}, opt={}
+                processor.sendRequest(
+                    req, 
+                    (response)=>{
+                        // success
+                        consoleEl.innerHTML += `Response arrived: ${val} squared is ${response} <br>`;
+                    }, 
+                    (errCode, errMsg)=>{
+                        // error (should not happen)
+                        consoleEl.innerHTML += `Error on calculating the square; should not happen!: ${errCode}: ${errMsg} <br>`;
+                    },
+                    opt, 
+                    (code, msg)=>{
+                        consoleEl.innerHTML += `Request ack status: ${code} - ${msg}<br>`
+                    }
+                )
+
+                // close directly after sending the request 
+                if (close){
+                    processor.close(true)
+                }
+            }
+
+            function sendError(){
+
+                req = {}
+                req.type = 'error';
+
+                //success=(response)=>{}, failure=(errCode, errMsg)=>{}, opt={}
+                processor.sendRequest(
+                    req, 
+                    (response)=>{
+                        // success
+                        consoleEl.innerHTML += `There shouldn't be success: ${response} <br>`;
+                    }, 
+                    (errCode, errMsg)=>{
+                        // error (should not happen)
+                        consoleEl.innerHTML += `Error (as expected): ${errCode}: ${errMsg} <br>`;
+                    }
+                )
+
+            }
+
+        </script>
+    </head>
+    <body onLoad="startup()">
+        Send the following note: (The server will answer with exactly the same)
+        <input type="text" id="text"><br>
+        acknowledged: <input type="checkbox" id="sendAckNote"><br>
+        ackTimeout: <input type="number" id="ackTimeoutNote" value=5><br>
+        <button onclick="sendNote()">Send</button><br>
+        <br>
+        Send request to square the defined number
+        <input type="number" id="num" value=1><br>
+        requestTimeout: <input type="number" id="requestTimeout" value=10><br>
+        acknowledged: <input type="checkbox" id="sendAck"><br>
+        ackTimeout: <input type="number" id="ackTimeout" value=0><br>
+        <button onclick="sendSquare()">Send</button><button onclick="sendSquare(true)">Send and close connection</button><br>
+        <br>
+        Send request that results in an error (not acknowledged) <button onclick="sendError()">Send</button>
+        <div id="console">
+            <p>Console:</p>
+        </div>
+        <div id="log">
+            <p>Log:</p><br>
+        </div>
+    </body>
+</html>
