@@ -566,7 +566,7 @@
 					if (!message.stamp){
 						let msg = "NoteAck is not valid without stamp: " + messageRaw;
 						this.sendError(msg);
-						this.logger(0, msg)
+						this.logger(0, msg);
 					} else {
 
 						if (message.stamp in this.stackNote){
