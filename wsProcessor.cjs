@@ -155,6 +155,19 @@
 
 		}
 
+		toJSON(){
+			let o={};
+			let excludes = ['timeoutNext', 'heartbeat'];
+			for (let key of Object.keys(this)){
+				if (excludes.includes(key)){
+					o[key] = key;
+				} else {
+					o[key] = this[key];
+				}
+			}
+			return o;
+		}
+
 		// connection established
 		open(){
 			this.closing = false;
